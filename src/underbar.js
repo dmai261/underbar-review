@@ -167,18 +167,26 @@
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
     var result;
-    if (accumulator !== undefined) {
+    if (collection.toString() === '[object Object]') {
       result = accumulator;
-      // _.each(collection, function(element) {
-      //   result += iterator(element);
-      // });
-      for (var i = 0; i < collection.length; i++) {
-        result += iterator(result, collection[i], i, collection);
+      for (var key in collection) {
+        result = iterator(result, collection[key])
       }
-    } else {
+    } else if (accumulator !== undefined) {
+      result = accumulator;
+      for (var i = 0; i < collection.length; i++) {
+        var currentTotal = iterator(result, collection[i], i, collection);
+        if (currentTotal !== undefined) {
+          result = currentTotal;
+        }
+      }
+    } else if (accumulator === undefined) {
       result = collection[0];
       for (var i = 1; i < collection.length; i++) {
-        result += iterator(collection[i]);
+        var currentTotal = iterator(result, collection[i], i, collection);
+        if (currentTotal !== undefined) {
+          result = currentTotal;
+        }
       }
     }
     return result;
